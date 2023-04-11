@@ -1,5 +1,11 @@
 # @nhost/dashboard
 
+## 0.14.6
+
+### Patch Changes
+
+- b299cfc9: chore(deps): bump `vitest` to v0.30.0
+
 ## 0.14.5
 
 ### Patch Changes
