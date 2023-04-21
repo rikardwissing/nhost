@@ -32,7 +32,7 @@ export type NhostApolloClientOptions = {
    * @deprecated Please use `generateLinks` instead.
    */
   link?: ApolloLink
-  generateLinks?: (links: (ApolloLink | RequestHandler)[]) => (ApolloLink | RequestHandler)[]
+  generateLinks?: (links: (ApolloLink | RequestHandler)[], getAuthHeadersSync: () => { authorization?: String, role?: String}) => (ApolloLink | RequestHandler)[]
 }
 
 export const createApolloClient = ({
@@ -79,10 +79,7 @@ export const createApolloClient = ({
     })
   }
 
-  const getAuthHeaders = async () => {
-    // wait for valid access token
-    await awaitValidTokenOrNull()
-
+  const getAuthHeadersSync = () => {
     // add headers
     const resHeaders = {
       ...headers,
@@ -99,6 +96,14 @@ export const createApolloClient = ({
     }
 
     return resHeaders
+  }
+
+  const getAuthHeaders = async () => {
+    // wait for valid access token
+    await awaitValidTokenOrNull()
+
+    // get auth headers
+    return getAuthHeadersSync()
   }
 
   const wsClient = isBrowser
@@ -171,7 +176,7 @@ export const createApolloClient = ({
 
   links.push(splitLink)
 
-  const link = from(generateLinks ? generateLinks(links) : links)
+  const link = from(generateLinks ? generateLinks(links, getAuthHeadersSync) : links)
 
   const client = new ApolloClient({
     cache: cache || new InMemoryCache(),
